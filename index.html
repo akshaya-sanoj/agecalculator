@@ -3,12 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGE CALCULATOR</title>
-    <script src="./script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Age Calculator | Cyber Terminal</title>
+    
+    <!-- Cyberpunk style monospace font -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ea;
+            --cyber-yellow: #fcee0a;
+            --dark-bg: #0b0c10;
+            --panel-bg: rgba(11, 12, 16, 0.85);
+        }
+
+        /* Scanline background effect */
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--neon-cyan);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Clipped corner tech panel */
+        .cyber-panel {
+            background: var(--panel-bg);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            /* Creates the angled sci-fi corners */
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Decorative top bar */
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1::before {
+            content: '>>';
+            color: var(--neon-pink);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        /* Styling the date input to fit the theme */
+        input[type="date"] {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 18px;
+            padding: 10px 5px;
+            outline: none;
+            transition: all 0.3s;
+            color-scheme: dark; /* Forces the browser's calendar popup to be dark mode */
+        }
+
+        input[type="date"]:focus {
+            border-bottom: 2px solid var(--neon-pink);
+            box-shadow: 0 10px 10px -10px var(--neon-pink);
+        }
+
+        /* Cyberpunk Button */
+        .cyber-btn {
+            background: var(--cyber-yellow);
+            color: #000;
+            border: none;
+            padding: 15px 20px;
+            font-family: inherit;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            width: 100%;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+            transition: all 0.2s;
+        }
+
+        .cyber-btn:hover {
+            background: var(--neon-pink);
+            color: #fff;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .cyber-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Output screen */
+        .output-screen {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            padding: 15px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        #result {
+            font-size: 16px;
+            color: var(--cyber-yellow);
+            text-shadow: 0 0 5px rgba(252, 238, 10, 0.5);
+        }
+
+        .error {
+            color: var(--neon-pink) !important;
+            text-shadow: 0 0 5px rgba(255, 0, 234, 0.5) !important;
+        }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background-color: var(--neon-cyan);
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
 <body>
 
-    
+    <div class="cyber-panel">
+        <h1>SYS.AGE_CALC</h1>
+        
+        <div class="input-group">
+            <label>INPUT_SUBJECT_DOB:</label>
+            <input id="age" type="date">
+        </div>
+        
+        <button class="cyber-btn" onclick="getage()">[ INITIALIZE_SCAN ]</button>
+        
+        <div class="output-screen">
+            <span id="result">AWAITING_DATA...</span><span class="cursor"></span>
+        </div>
+    </div>
+
+    <script>
+        function getage() {
+            let inputElement = document.getElementById("age");
+            let resultElement = document.getElementById("result");
+            
+            // Handle empty input
+            if(!inputElement.value) {
+                resultElement.textContent = "ERR: NO_DOB_DETECTED";
+                resultElement.classList.add("error");
+                return;
+            }
+
+            let dob = new Date(inputElement.value);       
+            let currentdate = new Date();
+
+            let year = currentdate.getFullYear() - dob.getFullYear();
+            let month = currentdate.getMonth() - dob.getMonth();
+            let day = currentdate.getDate() - dob.getDate();
+
+            if(month < 0 || (month === 0 && day < 0)){
+                year--;
+                month += 12;
+            }
+            
+            if(day < 0){
+                month--;
+                let prevMonthDate = new Date(currentdate.getFullYear(), currentdate.getMonth(), 0); 
+                day += prevMonthDate.getDate();
+            }
+
+            // Remove error styling if present
+            resultElement.classList.remove("error");
+            
+            // Themed output text
+            resultElement.textContent = `LIFESPAN: ${year}YRS | ${month}MOS | ${day}DYS`;        
+        }
+    </script>
+
 </body>
 </html>
